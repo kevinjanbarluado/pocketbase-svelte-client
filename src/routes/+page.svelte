@@ -1,6 +1,7 @@
 <script>
   import { login } from "$lib/pocketbase";  // Import login function from pocketbase.js
   import { writable } from "svelte/store";
+  import { goto } from "$app/navigation";  // Import goto for navigation
 
   // Svelte stores for user and error handling
   const user = writable(null);
@@ -23,9 +24,8 @@
       // Optionally store the user data in localStorage or sessionStorage
       localStorage.setItem("user", JSON.stringify(authData.record));
 
-      // You can also redirect the user after successful login if needed
-      // Example:
-      // navigate('/dashboard');
+      // Redirect the user after successful login
+      goto('/dashboard');
     } catch (err) {
       error.set(err.message);  // Display the error message
       console.error("Error during login:", err);
