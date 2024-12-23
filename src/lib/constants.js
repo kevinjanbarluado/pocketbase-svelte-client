@@ -5,5 +5,5 @@ export const DASHBOARD_LINKS = {
   INVENTORY: "/dashboard/inventory",
   SUPPLIERS: "/dashboard/suppliers",
   USERS: "/dashboard/users",
-  LOGIN: "login",
+  LOGOUT: "/logout",
 };

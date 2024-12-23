@@ -1,25 +1,31 @@
-<script context="module">
-  export let title = "Dashboard"; // Default title if no title is passed
-</script>
-
 <script>
   import { onMount } from "svelte";
-  import { page } from "$app/stores";
-  import { goto } from "$app/navigation";
+  import Button from "$lib/components/Button.svelte";
+  import { capitalizeFirstLetter } from "$lib";
+  import { DASHBOARD_LINKS } from "$lib/constants.js";
+  import { page } from "$app/state";
 
-  let pageTitle = title;
+  let pageTitle = $state("");
 
-  $: {
-    if ($page.data.title) {
-      pageTitle = $page.data.title;
-    }
-  }
+  const updateTitle = (title = "") => {
+    pageTitle = title;
+  };
 
-  // Function to handle navigation and title update
-  function handleNavigation(url, newTitle) {
-    pageTitle = newTitle; // Update the title state
-    goto(url); // Navigate to the specified URL
-  }
+  const buttonLinks = Object.entries(DASHBOARD_LINKS).map(([key, url]) => ({
+    title: capitalizeFirstLetter(key),
+    url: url,
+  }));
+
+  // Fetch the page name on load
+  const getPageOnLoad = () => {
+    const pageRoute = page?.route?.id?.split("/");
+    const pageName = pageRoute[pageRoute.length - 1];
+    updateTitle(pageName);
+  };
+
+  onMount(() => {
+    getPageOnLoad();
+  });
 </script>
 
 <div class="flex flex-col min-h-screen bg-gray-100">
@@ -28,43 +34,9 @@
       <div class="flex items-center justify-between">
         <div class="text-2xl font-bold text-gray-900">Kethel Inventory</div>
         <div class="hidden space-x-8 md:flex">
-          <button
-            on:click={() => handleNavigation("/dashboard/", "Dashboard")}
-            class="text-gray-900 transition duration-200 hover:text-blue-600"
-            >Home</button
-          >
-          <button
-            on:click={() => handleNavigation("/dashboard/product", "Products")}
-            class="text-gray-900 transition duration-200 hover:text-blue-600"
-            >Products</button
-          >
-          <button
-            on:click={() => handleNavigation("/dashboard/category", "Category")}
-            class="text-gray-900 transition duration-200 hover:text-blue-600"
-            >Category</button
-          >
-          <button
-            on:click={() =>
-              handleNavigation("/dashboard/suppliers", "Suppliers")}
-            class="text-gray-900 transition duration-200 hover:text-blue-600"
-            >Suppliers</button
-          >
-          <button
-            on:click={() =>
-              handleNavigation("/dashboard/inventory", "Inventory")}
-            class="text-gray-900 transition duration-200 hover:text-blue-600"
-            >Inventory</button
-          >
-          <button
-            on:click={() => handleNavigation("/dashboard/users", "Users")}
-            class="text-gray-900 transition duration-200 hover:text-blue-600"
-            >Users</button
-          >
-          <button
-            on:click={() => handleNavigation("#", "Logout")}
-            class="text-gray-900 transition duration-200 hover:text-blue-600"
-            >Logout</button
-          >
+          {#each buttonLinks as { title, url }}
+            <Button {title} {url} {updateTitle} />
+          {/each}
         </div>
         <!-- Mobile Menu Button -->
         <div class="md:hidden">
@@ -88,7 +60,7 @@
       </div>
     </div>
     <!-- Mobile Menu (hidden on desktop) -->
-    <div class="px-4 py-6 space-y-4 bg-white shadow-md md:hidden">
+    <!-- <div class="px-4 py-6 space-y-4 bg-white shadow-md md:hidden">
       <button
         on:click={() => handleNavigation("/", "Dashboard")}
         class="block text-gray-900 transition duration-200 hover:text-blue-600"
@@ -119,11 +91,13 @@
         class="block text-gray-900 transition duration-200 hover:text-blue-600"
         >Logout</button
       >
-    </div>
+    </div> -->
   </nav>
   <header class="bg-white shadow">
     <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-      <h1 class="text-3xl font-bold text-gray-900">{pageTitle}</h1>
+      <h1 class="text-3xl font-bold text-gray-900">
+        {capitalizeFirstLetter(pageTitle)}
+      </h1>
     </div>
   </header>
   <main class="flex-grow">

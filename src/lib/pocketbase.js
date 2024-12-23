@@ -6,7 +6,6 @@ async function getDataFromCollection(collectionName = "", expandParam = "") {
   try {
     const queryOptions = expandParam ? { expand: expandParam } : {};
     const data = await pb.collection(collectionName).getFullList(queryOptions);
-    console.log(collectionName, data);
     return data;
   } catch (error) {
     console.error(`Failed to fetch data from ${collectionName}:`, error);
