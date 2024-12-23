@@ -1,7 +1,8 @@
 <script>
-  import { login } from "$lib/pocketbase";  // Import login function from pocketbase.js
+  import { login } from "$lib/pocketbase"; // Import login function from pocketbase.js
   import { writable } from "svelte/store";
-  import { goto } from "$app/navigation";  // Import goto for navigation
+  import { goto } from "$app/navigation"; // Import goto for navigation
+  import { onMount } from "svelte";
 
   // Svelte stores for user and error handling
   const user = writable(null);
@@ -9,6 +10,19 @@
 
   let email = "";
   let password = "";
+  // Check if the user is already logged in
+
+  onMount(() => {
+    let storedUser = localStorage.getItem("user");
+    console.log(storedUser);
+    if (storedUser) {
+      user.set(JSON.parse(storedUser));
+    }
+  });
+
+  $: if ($user) {
+    goto("/dashboard");
+  }
 
   // Handle form submission
   async function handleSubmit(event) {
@@ -16,18 +30,18 @@
     error.set(null);
 
     try {
-      const authData = await login(email, password);  // Use the login function
+      const authData = await login(email, password); // Use the login function
 
-      user.set(authData.record);  // Store the authenticated user
+      user.set(authData.record); // Store the authenticated user
       console.log("Logged in successfully:", authData.record);
 
       // Optionally store the user data in localStorage or sessionStorage
       localStorage.setItem("user", JSON.stringify(authData.record));
 
       // Redirect the user after successful login
-      goto('/dashboard');
+      goto("/dashboard");
     } catch (err) {
-      error.set(err.message);  // Display the error message
+      error.set(err.message); // Display the error message
       console.error("Error during login:", err);
     }
   }
@@ -36,7 +50,9 @@
 <div class="flex items-center justify-center min-h-screen">
   <form class="max-w-md mx-auto mt-8 space-y-6" on:submit={handleSubmit}>
     <div>
-      <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+      <label for="email" class="block text-sm font-medium text-gray-700"
+        >Email address</label
+      >
       <input
         id="email"
         name="email"
@@ -49,7 +65,9 @@
     </div>
 
     <div>
-      <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+      <label for="password" class="block text-sm font-medium text-gray-700"
+        >Password</label
+      >
       <input
         id="password"
         name="password"
@@ -62,7 +80,7 @@
     </div>
 
     {#if $error}
-      <div class="mt-2 text-sm text-red-500">{ $error }</div>
+      <div class="mt-2 text-sm text-red-500">{$error}</div>
     {/if}
 
     <div class="flex items-center justify-between">
@@ -73,10 +91,14 @@
           type="checkbox"
           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
         />
-        <label for="remember_me" class="block ml-2 text-sm text-gray-900">Remember me</label>
+        <label for="remember_me" class="block ml-2 text-sm text-gray-900"
+          >Remember me</label
+        >
       </div>
       <div class="text-sm">
-        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Forgot your password?</a>
+        <a href="#" class="font-medium text-blue-600 hover:text-blue-500"
+          >Forgot your password?</a
+        >
       </div>
     </div>
 
